@@ -83,3 +83,15 @@ jobs:
           if [ -n "$PARENT" ]; then NEW=$(git commit-tree "$TREE" -p "$PARENT" -m "dist $(date -u +%F)")
           else NEW=$(git commit-tree "$TREE" -m "dist $(date -u +%F)"); fi
           git push origin "$NEW:refs/heads/dist"
+      - name: Mirror dist branch to Gitee (CN distribution)
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        run: |
+          # 匿名 raw 需仓库公开过审; 审核前设备/订阅方也可用 API+token 通道。
+          # token 只进 header/URL 参数——不落日志(gh 掩码 + push -q 不回显)。
+          if [ -n "$GITEE_TOKEN" ]; then
+            git push -q "https://hewmbj:${GITEE_TOKEN}@gitee.com/hewmbj/cn-telemetry-collectors.git" \
+              "origin/dist:refs/heads/dist" || echo "(gitee mirror push failed — continuing)"
+          else
+            echo "(GITEE_TOKEN not set — skipping gitee mirror)"
+          fi
