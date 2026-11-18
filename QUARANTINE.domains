@@ -19,3 +19,6 @@ vars.hotjar.com | shavar:Analytics,easyprivacy | probe:http GET /=200/467009B (l
 
 # --- demoted from STABLE 2026-11-18: fingerprint reversal caught by verify_list.py ---
 in.hotjar.com | shavar:Analytics,easyprivacy | DEMOTED: https GET /=200/467KB (marketing SPA catch-all); https /collect=200/467KB — serves functional content; find the real per-site ingest hosts (vc.hotjar.com pattern) instead | 2026-11-17
+
+# --- demoted from STABLE 2026-11-18: reversal caught by weekly verify (US vantage) ---
+ping.chartbeat.net | shavar:Analytics,easyprivacy | DEMOTED: http GET /=200/16103B (real page now served); /collect=404/150B — beacon path no longer collector-shaped | 2026-11-17
