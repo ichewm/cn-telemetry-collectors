@@ -23,7 +23,7 @@ jobs:
         run: python3 tools/corroborate.py
       - name: Probe every quarantined candidate (evidence for reviewers)
         run: |
-          grep -E '^[a-z0-9.-]+\|' QUARANTINE.domains | cut -d'|' -f1 > q.txt || true
+          grep -E '^[a-z0-9.-]+ *\|' QUARANTINE.domains | cut -d'|' -f1 > q.txt || true
           if [ -s q.txt ]; then python3 tools/probe.py $(cat q.txt) | tee probe-report.txt; else echo "no quarantine candidates" > probe-report.txt; fi
       - name: Rebuild + tests
         run: |
@@ -50,7 +50,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          n=$(grep -cE '^[a-z0-9.-]+\|' telemetry.domains)
+          n=$(grep -cE '^[a-z0-9.-]+ *\|' telemetry.domains)
           notes="Weekly rebuild $(date -u +%F) — ${n} stable entries. Quarantined candidates await promotion review."
           if gh release view list >/dev/null 2>&1; then gh release edit list --notes "$notes"
           else gh release create list --title "Rolling list" --notes "$notes"; fi
