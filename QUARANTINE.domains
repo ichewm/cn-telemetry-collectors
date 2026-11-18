@@ -16,3 +16,6 @@ plbslog.umeng.com | umeng-sdk-docs | probe:http GET /=200/1996B (borderline body
 mta.qq.com | tencent-mta-docs | probe:http connection dropped (endpoint https-only or geo-gated; needs https probe + device-side evidence) | 2026-11-17
 analytics.google.com | shavar:Analytics,easyprivacy | probe:http GET /=200/5759B (serves a real page at /; GA4 hits go to /g/collect — needs path-shaped probe before promotion) | 2026-11-17
 vars.hotjar.com | shavar:Analytics,easyprivacy | probe:http GET /=200/467009B (large body at / is suspicious for a vars endpoint; investigate) | 2026-11-17
+
+# --- demoted from STABLE 2026-11-18: fingerprint reversal caught by verify_list.py ---
+in.hotjar.com | shavar:Analytics,easyprivacy | DEMOTED: https GET /=200/467KB (marketing SPA catch-all); https /collect=200/467KB — serves functional content; find the real per-site ingest hosts (vc.hotjar.com pattern) instead | 2026-11-17

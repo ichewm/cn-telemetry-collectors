@@ -82,4 +82,24 @@ python3 tools/test_build_lists.py        # unit tests (hash format pinned to fir
 python3 tools/build_lists.py             # compile dist/ artifacts
 python3 tools/probe.py some.domain       # gather evidence
 python3 tools/corroborate.py --dry-run   # check sources for a domain
+python3 tools/verify_list.py             # L1+L2 verification of the STABLE list
 ```
+
+## Continuous verification
+
+Admission evidence is not permanent. The weekly pipeline re-verifies every
+STABLE entry (`tools/verify_list.py`):
+
+- **L1 evidence freshness** — re-probes all entries (http, with https fallback
+  for TLS-only endpoints) and checks DNS liveness. A fingerprint that reversed
+  into functional content is a hard failure: CI opens an issue and the entry
+  is demoted for human review (this is how `in.hotjar.com` was caught — its
+  https `GET /` now serves a 467&nbsp;KB marketing SPA catch-all).
+- **L2 negative screening** — entries are checked against known-functional
+  allowlists (domains the sinkhole community explicitly un-broke after real
+  breakage reports). A collision contradicts our evidence and is a hard failure.
+
+Probe verdict precedence, validated on real endpoints: a **beacon-shaped
+2xx-tiny response outranks functional content at `GET /`** (Google Analytics
+serves a 118&nbsp;KB page at `/` — the `/collect` 200/35B is the decisive
+signal), which in turn outranks "tiny non-200, no website".

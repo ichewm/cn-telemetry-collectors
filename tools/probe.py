@@ -20,6 +20,7 @@ Usage:
 import argparse
 import json
 import socket
+import ssl
 import sys
 import urllib.error
 import urllib.request
@@ -27,34 +28,82 @@ import urllib.request
 BEACON_PATHS = ['/', '/collect?v=1&t=pageview', '/pixel']
 TINY = 2048          # bodies larger than this on GET / smell like a real site
 FUNC_BODY = 8192     # definitely functional content at this size
+_NOVERIFY = ssl.create_default_context()
+_NOVERIFY.check_hostname = False
+_NOVERIFY.verify_mode = ssl.CERT_NONE
 
+
+def _size(tok):
+    try:
+        return int(tok.split('/')[1].rstrip('B'))
+    except (IndexError, ValueError):
+        return 0
+
+
+def _failed(tok):
+    """Connection-level failure (exception class name instead of an HTTP code)."""
+    return not tok.split('/')[0].isdigit()
+
+
+def _fetch(url):
+    ctx = _NOVERIFY if url.startswith('https') else None
+    try:
+        r = urllib.request.urlopen(url, timeout=6, context=ctx)
+        return r.status, len(r.read())
+    except urllib.error.HTTPError as e:
+        return e.code, len(e.read() or b'')
+    except Exception as e:
+        return type(e).__name__, 0
 
 def probe_one(domain: str):
-    """Return {path: 'code/sizeB'} plus a naive verdict for humans."""
+    """Return {path: 'code/sizeB'} plus a verdict for humans/CI.
+
+    Verdict precedence (validated against real endpoints):
+      1. beacon-shaped 2xx-tiny (e.g. GA /collect -> 200/35B) beats everything:
+         GA itself serves a 118KB marketing page at GET / — the beacon path is
+         the decisive signal, not the landing page
+      2. functional content at / (KB-scale HTML) -> REJECT
+      3. tiny non-200 at / (500/0B, 404/144B — no website) -> collector
+    """
     sig = {}
     for path in BEACON_PATHS:
-        url = f'http://{domain}{path}'
-        try:
-            r = urllib.request.urlopen(url, timeout=6)
-            code, size = r.status, len(r.read())
-        except urllib.error.HTTPError as e:
-            code, size = e.code, len(e.read() or b'')
-        except Exception as e:
-            code, size = type(e).__name__, 0
+        code, size = _fetch(f'http://{domain}{path}')
         sig[path.split('?')[0]] = f'{code}/{size}B'
 
+    http_all_err = all(_failed(v) for v in sig.values())
+    if http_all_err:                       # https-only endpoint: fingerprint over TLS
+        for path in ['/', '/collect?v=1&t=pageview']:
+            code, size = _fetch(f'https://{domain}{path}')
+            sig['https ' + path.split('?')[0]] = f'{code}/{size}B'
+
+    beacon = sig.get('/collect', '')
+    beacon_https = sig.get('https /collect', '')
     root = sig['/']
+    root_https = sig.get('https /', '')
+
+    def _beacon_ok(tok):
+        return tok.startswith('200') and _size(tok) < TINY
+
     verdict = 'inconclusive'
-    if 'ERR' in root:
-        verdict = 'http-refused (https-only? alive-unknown)'
+    if _beacon_ok(beacon) or _beacon_ok(beacon_https):
+        verdict = 'collector: beacon-shaped 2xx-tiny'
+    elif any(('ERR' not in t) and t.startswith('200') and _size(t) >= FUNC_BODY
+             for t in (root, root_https)):
+        verdict = 'REJECT: functional content at /'
+    elif http_all_err:
+        if root_https and not _failed(root_https) and _size(root_https) < TINY \
+                and not root_https.startswith('200'):
+            verdict = 'collector(https): tiny non-200, no website'
+        elif root_https and not _failed(root_https) and _size(root_https) < TINY:
+            verdict = 'borderline(https): tiny 200 at /'
+        elif root_https and not _failed(root_https):
+            verdict = 'REJECT: functional content at / (https)'
+        else:
+            verdict = 'unreachable (http and https both fail)'
     else:
-        size = int(root.split('/')[1].rstrip('B') or 0)
-        beacon = sig.get('/collect', '')
-        if root.startswith('200') and size >= FUNC_BODY:
-            verdict = 'REJECT: functional content at /'
-        elif any(beacon.startswith('200') and int(beacon.split('/')[1].rstrip('B') or 99) < TINY
-                 for _ in [0]):
-            verdict = 'collector: beacon-shaped 2xx-tiny'
+        size = _size(root)
+        if _failed(root):
+            verdict = 'unreachable: http connection failed, https not attempted'
         elif size < TINY and not root.startswith('200'):
             verdict = 'collector: tiny non-200 at / (no website)'
         elif size < TINY:

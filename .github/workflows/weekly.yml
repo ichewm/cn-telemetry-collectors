@@ -29,6 +29,19 @@ jobs:
         run: |
           python3 tools/test_build_lists.py
           python3 tools/build_lists.py
+      - name: Verify STABLE list (L1 re-probe + L2 allowlist screening)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set +e
+          python3 tools/verify_list.py 2>&1 | tee verify-report.txt
+          RC=${PIPESTATUS[0]}
+          set -e
+          if [ "$RC" -ne 0 ]; then
+            gh issue create --title "VERIFY FAIL $(date -u +%F): fingerprint reversal or allowlist collision" \
+              --body-file verify-report.txt || true
+            exit 1
+          fi
       - name: Open promotion PR (only when QUARANTINE changed)
         env:
           GH_TOKEN: ${{ github.token }}
