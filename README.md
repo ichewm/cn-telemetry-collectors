@@ -11,16 +11,29 @@ Every entry is a host whose *only* job is to receive telemetry beacons — `alog
 1. **Subdomain precision matters.** `beacon.qq.com` is Tencent Beacon's *marketing website* (a live probe returns a 65&nbsp;KB page) — graveyarding it would break a real site. Its collection endpoints live elsewhere. This is why probing is mandatory: we rejected `beacon.qq.com` on probe evidence, despite its perfect-sounding name.
 2. **The list enables graveyard mode.** A sinkhole can answer `0.0.0.0` (connection refused — the SDK retries, burns battery) or, for collector-only hosts, answer with **its own address and return `204 No Content`** — the SDK records a successful upload and stops retrying. Same blocking, quieter clients. The [esp32-c3-adblock-cn](https://github.com/ichewm/esp32-c3-adblock-cn) firmware implements this against `telemetry.bin`.
 
-## Formats
+## Formats & subscription URLs
 
 | Artifact | Format | Consumers |
 |---|---|---|
 | `telemetry.domains` | plaintext, provenance per entry | humans, reviewers |
-| `dist/telemetry.hosts` | `0.0.0.0 domain` | Pi-hole, any hosts-file sinkhole |
-| `dist/adguard.txt` | `\|\|domain^` rules | AdGuard Home / apps, uBlock |
-| `dist/telemetry.bin` | sorted 40-bit FNV-1a hashes (little-endian) | esp32-c3-adblock firmware |
+| `telemetry.hosts` | `0.0.0.0 domain` | Pi-hole, any hosts-file sinkhole |
+| `adguard.txt` | `\|\|domain^` rules | AdGuard Home / apps, uBlock |
+| `telemetry.bin` | sorted 40-bit FNV-1a hashes (little-endian) | esp32-c3-adblock firmware |
 
-Subscribe to the raw files on `main` (always the current STABLE set), or to the rolling [`list` release](../../releases/tag/list) for versioned weekly archives.
+Subscribe (pick whichever URL your tool accepts — content is identical):
+
+```
+# rolling release assets (canonical, versioned)
+https://github.com/ichewm/cn-telemetry-collectors/releases/download/list/telemetry.hosts
+https://github.com/ichewm/cn-telemetry-collectors/releases/download/list/adguard.txt
+https://github.com/ichewm/cn-telemetry-collectors/releases/download/list/telemetry.bin
+
+# raw on the dist branch (rebuilt weekly)
+https://raw.githubusercontent.com/ichewm/cn-telemetry-collectors/dist/telemetry.hosts
+
+# Gitee mirror (CN-friendly; new-repo raw access may lag on first days)
+https://gitee.com/hewmbj/cn-telemetry-collectors/raw/dist/telemetry.hosts
+```
 
 ## Trust model — every entry carries evidence
 

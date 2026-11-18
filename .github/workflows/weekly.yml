@@ -55,3 +55,16 @@ jobs:
           if gh release view list >/dev/null 2>&1; then gh release edit list --notes "$notes"
           else gh release create list --title "Rolling list" --notes "$notes"; fi
           gh release upload list dist/* --clobber
+      - name: Publish dist branch (raw-URL subscription path)
+        run: |
+          # Plumbing-only orphan branch holding just dist/* — same pattern as
+          # esp32-c3-adblock-cn's Gitee dist (devices/subscribers fetch raw URLs).
+          git fetch origin dist || true
+          TMPIDX=$(mktemp)
+          GIT_INDEX_FILE=$TMPIDX git read-tree --empty
+          GIT_INDEX_FILE=$TMPIDX git add -f dist/telemetry.hosts dist/adguard.txt dist/telemetry.bin
+          TREE=$(GIT_INDEX_FILE=$TMPIDX git write-tree)
+          PARENT=$(git rev-parse --verify -q origin/dist^{commit} || true)
+          if [ -n "$PARENT" ]; then NEW=$(git commit-tree "$TREE" -p "$PARENT" -m "dist $(date -u +%F)")
+          else NEW=$(git commit-tree "$TREE" -m "dist $(date -u +%F)"); fi
+          git push origin "$NEW:refs/heads/dist"
