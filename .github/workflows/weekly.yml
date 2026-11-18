@@ -77,9 +77,16 @@ jobs:
           # raw URLs like .../raw/dist/telemetry.hosts with no dist/ prefix).
           git fetch origin dist || true
           TMPIDX=$(mktemp)
-          GIT_INDEX_FILE=$TMPIDX git read-tree --empty
-          (cd dist && GIT_INDEX_FILE=$TMPIDX git add -f telemetry.hosts adguard.txt telemetry.bin noise-corpus.bin)
-          TREE=$(GIT_INDEX_FILE=$TMPIDX git write-tree)
+          export GIT_INDEX_FILE=$TMPIDX
+          git read-tree --empty
+          # update-index gives full control of the recorded path (git add always
+          # records root-relative paths, which nested the files under dist/)
+          for f in telemetry.hosts adguard.txt telemetry.bin noise-corpus.bin; do
+            B=$(git hash-object -w dist/$f)
+            git update-index --add --cacheinfo 100644,$B,$f
+          done
+          TREE=$(git write-tree)
+          unset GIT_INDEX_FILE
           PARENT=$(git rev-parse --verify -q origin/dist^{commit} || true)
           if [ -n "$PARENT" ]; then NEW=$(git commit-tree "$TREE" -p "$PARENT" -m "dist $(date -u +%F)")
           else NEW=$(git commit-tree "$TREE" -m "dist $(date -u +%F)"); fi
