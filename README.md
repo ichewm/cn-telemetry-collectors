@@ -19,6 +19,7 @@ Every entry is a host whose *only* job is to receive telemetry beacons — `alog
 | `telemetry.hosts` | `0.0.0.0 domain` | Pi-hole, any hosts-file sinkhole |
 | `adguard.txt` | `\|\|domain^` rules | AdGuard Home / apps, uBlock |
 | `telemetry.bin` | sorted 40-bit FNV-1a hashes (little-endian) | esp32-c3-adblock firmware |
+| `noise-corpus.bin` | rank-ordered top-2000 web domains, fixed 32B records | profile-fog / DNS-noise consumers (popularity-weighted draw at read time) |
 
 Subscribe (pick whichever URL your tool accepts — content is identical):
 
@@ -69,8 +70,9 @@ Every Monday, CI re-fetches all sources, re-runs corroboration, probes new candi
 
 ## Relationship & roadmap
 
-- Companion data plane of [esp32-c3-adblock-cn](https://github.com/ichewm/esp32-c3-adblock-cn) (graveyard answering ships there as firmware feature P6).
-- Roadmap: a **popularity-weighted corpus of the top-2k domains** as a second artifact — the data source for DNS-noise profile poisoning (obfuscation à la TrackMeNot/AdNauseam, grounded in the DNS-behavior-tracking literature).
+- Companion data plane of [esp32-c3-adblock-cn](https://github.com/ichewm/esp32-c3-adblock-cn): the graveyard-answer firmware consumes `telemetry.bin`, the *fog* scheduler consumes `noise-corpus.bin`.
+- ~~popularity-weighted corpus as a second artifact~~ — **shipped**: `noise-corpus.bin` (Majestic top-2000, fixed-width; consumers apply head-heavy rank weighting at draw time). Consumed by the esp32-c3-adblock-cn *fog* scheduler (DNS-noise profile poisoning, default off).
+- Behavioral coverage loop (L3): `tools/analyze_qlog.py` measures list recall against a live device's query log and surfaces `miss` candidates — first run already produced three quarantine candidates (Tencent `aeventlog.beacon.qq.com`, `oth.eve.mdt.qq.com`, Google `beacons.gvt2.com`).
 
 ## License
 

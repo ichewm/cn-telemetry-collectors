@@ -30,6 +30,7 @@ jobs:
         run: |
           python3 tools/test_build_lists.py
           python3 tools/build_lists.py
+          python3 tools/build_noise.py   # popularity corpus for profile-fog consumers
       - name: Verify STABLE list (L1 re-probe + L2 allowlist screening)
         env:
           GH_TOKEN: ${{ github.token }}
@@ -76,7 +77,7 @@ jobs:
           git fetch origin dist || true
           TMPIDX=$(mktemp)
           GIT_INDEX_FILE=$TMPIDX git read-tree --empty
-          GIT_INDEX_FILE=$TMPIDX git add -f dist/telemetry.hosts dist/adguard.txt dist/telemetry.bin
+          GIT_INDEX_FILE=$TMPIDX git add -f dist/telemetry.hosts dist/adguard.txt dist/telemetry.bin dist/noise-corpus.bin
           TREE=$(GIT_INDEX_FILE=$TMPIDX git write-tree)
           PARENT=$(git rev-parse --verify -q origin/dist^{commit} || true)
           if [ -n "$PARENT" ]; then NEW=$(git commit-tree "$TREE" -p "$PARENT" -m "dist $(date -u +%F)")
