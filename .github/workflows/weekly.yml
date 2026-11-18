@@ -72,17 +72,18 @@ jobs:
           gh release upload list dist/* --clobber
       - name: Publish dist branch (raw-URL subscription path)
         run: |
-          # Plumbing-only orphan branch holding just dist/* — same pattern as
-          # esp32-c3-adblock-cn's Gitee dist (devices/subscribers fetch raw URLs).
+          # Plumbing-only branch holding the artifacts at the BRANCH ROOT — same
+          # layout as esp32-c3-adblock-cn's Gitee dist (devices/subscribers fetch
+          # raw URLs like .../raw/dist/telemetry.hosts with no dist/ prefix).
           git fetch origin dist || true
           TMPIDX=$(mktemp)
           GIT_INDEX_FILE=$TMPIDX git read-tree --empty
-          GIT_INDEX_FILE=$TMPIDX git add -f dist/telemetry.hosts dist/adguard.txt dist/telemetry.bin dist/noise-corpus.bin
+          (cd dist && GIT_INDEX_FILE=$TMPIDX git add -f telemetry.hosts adguard.txt telemetry.bin noise-corpus.bin)
           TREE=$(GIT_INDEX_FILE=$TMPIDX git write-tree)
           PARENT=$(git rev-parse --verify -q origin/dist^{commit} || true)
           if [ -n "$PARENT" ]; then NEW=$(git commit-tree "$TREE" -p "$PARENT" -m "dist $(date -u +%F)")
           else NEW=$(git commit-tree "$TREE" -m "dist $(date -u +%F)"); fi
-          git push origin "$NEW:refs/heads/dist"
+          git push --force origin "$NEW:refs/heads/dist"
       - name: Mirror dist branch to Gitee (CN distribution)
         env:
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
@@ -90,7 +91,7 @@ jobs:
           # 匿名 raw 需仓库公开过审; 审核前设备/订阅方也可用 API+token 通道。
           # token 只进 header/URL 参数——不落日志(gh 掩码 + push -q 不回显)。
           if [ -n "$GITEE_TOKEN" ]; then
-            git push -q "https://hewmbj:${GITEE_TOKEN}@gitee.com/hewmbj/cn-telemetry-collectors.git" \
+            git push -q --force "https://hewmbj:${GITEE_TOKEN}@gitee.com/hewmbj/cn-telemetry-collectors.git" \
               "origin/dist:refs/heads/dist" || echo "(gitee mirror push failed — continuing)"
           else
             echo "(GITEE_TOKEN not set — skipping gitee mirror)"
