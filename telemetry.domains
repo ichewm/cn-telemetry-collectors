@@ -1,0 +1,37 @@
+# cn-telemetry-collectors — STABLE list (source of truth)
+#
+# One entry per line. Fields (pipe-separated):
+#   domain   — collection endpoint hostname (exact; NOT a marketing/company domain)
+#   sources  — independent list sources that corroborate the domain
+#   evidence — probe fingerprint or other verification (see CONTRIBUTING.md)
+#   added    — date the entry was promoted to STABLE
+#
+# Admission rules (either path qualifies, see CONTRIBUTING.md):
+#   A) corroborated by >= 2 independent public tracking lists
+#   B) documented SDK collection endpoint + probe fingerprint match
+#
+# Editing: additions to this file happen ONLY via promotion from QUARANTINE.domains.
+# Removals: open a PR with the reason (source drop, breakage report, or probe reversal).
+# Generated artifacts (dist/) are compiled from this file — never edit those directly.
+
+# --- CN collection endpoints (rule B: SDK-documented + probed) ---
+alog.umeng.com | umeng-sdk-docs,manual | probe:http GET /=500/0B,/pixel=500/0B (endpoint alive, no route at /) | 2026-11-17
+applog.snssdk.com | bytedance-applog-docs,manual | probe:http GET /=404/144B,/pixel=404/144B (tiny 404, no functional content) | 2026-11-17
+log.snssdk.com | bytedance-applog-docs,manual | probe:http GET /=504/158B (alive gateway, no functional content) | 2026-11-17
+sdk.talkingdata.com | talkingdata-sdk-docs,manual | probe:http GET /=200/277B,/pixel=404/368B (tiny responses only) | 2026-11-17
+
+# --- Global collection endpoints (rule A: shavar:Analytics + easyprivacy) ---
+www.google-analytics.com | shavar:Analytics,easyprivacy | probe:http GET /collect?v=1&t=pageview=200/35B (beacon-shaped 2xx-tiny; note GET / serves 118KB marketing page — path-shaped probing is mandatory) | 2026-11-17
+ssl.google-analytics.com | shavar:Analytics,easyprivacy | 2src; https-only endpoint (http probe connection-refused is expected) | 2026-11-17
+api.mixpanel.com | shavar:Analytics,easyprivacy | probe:http GET /=404/90B,/collect=404/127B (tiny 404s, no functional content) | 2026-11-17
+api.segment.io | shavar:Analytics,easyprivacy | 2src; https-only endpoint | 2026-11-17
+api.amplitude.com | shavar:Analytics,easyprivacy | 2src; https-only endpoint | 2026-11-17
+bam.nr-data.net | shavar:Analytics,easyprivacy | 2src; https-only endpoint (New Relic event ingest) | 2026-11-17
+insights-collector.newrelic.com | shavar:Analytics,easyprivacy | 2src; https-only endpoint (New Relic browser agent collector) | 2026-11-17
+in.hotjar.com | shavar:Analytics,easyprivacy | 2src; https-only endpoint (Hotjar ingest) | 2026-11-17
+ping.chartbeat.net | shavar:Analytics,easyprivacy | 2src; https-only endpoint (Chartbeat ping) | 2026-11-17
+pixel.parsely.com | shavar:Analytics,easyprivacy | 2src; https-only endpoint (Parse.ly pixel) | 2026-11-17
+analytics.yahoo.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17
+pixel.barion.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17
+pixel.thoughtmetric.io | shavar:Analytics,easyprivacy | 2src | 2026-11-17
+stat-track.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17

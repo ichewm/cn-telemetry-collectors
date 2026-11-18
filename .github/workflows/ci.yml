@@ -1,0 +1,30 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Unit tests (hash format pinned to the firmware's vectors)
+        run: python3 -m unittest discover -s tools -p 'test_*.py' -v
+      - name: Compile artifacts
+        run: python3 tools/build_lists.py
+      - name: Artifact sanity (bin size = entries x 5B, %5 == 0, sorted)
+        run: |
+          n=$(grep -cE '^[a-z0-9.-]+\|' telemetry.domains)
+          sz=$(stat -c%s dist/telemetry.bin)
+          test $((sz % 5)) -eq 0
+          test $((sz / 5)) -eq "$n"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: list-artifacts
+          path: dist/
+          retention-days: 30

@@ -1,0 +1,18 @@
+# cn-telemetry-collectors — QUARANTINE (candidate entries, NOT active)
+#
+# Same format as telemetry.domains. Entries here are compiled into nothing by
+# default; weekly CI drops new auto-discovered candidates here. A human reviews
+# the evidence and promotes qualifying entries to telemetry.domains via PR
+# (moving the line to the STABLE file and updating `added`).
+#
+# Typical reasons an entry lives here instead of STABLE:
+#   - single source only, awaiting a second corroboration
+#   - probe evidence ambiguous (large GET / body, mixed signals)
+#   - CN endpoint where http probing is inconclusive (https-only / connection
+#     drops) and device-side behavioral evidence is still being collected
+
+# --- awaiting second source or cleaner probe ---
+plbslog.umeng.com | umeng-sdk-docs | probe:http GET /=200/1996B (borderline body size; needs path-shaped probe vs SDK pcap) | 2026-11-17
+mta.qq.com | tencent-mta-docs | probe:http connection dropped (endpoint https-only or geo-gated; needs https probe + device-side evidence) | 2026-11-17
+analytics.google.com | shavar:Analytics,easyprivacy | probe:http GET /=200/5759B (serves a real page at /; GA4 hits go to /g/collect — needs path-shaped probe before promotion) | 2026-11-17
+vars.hotjar.com | shavar:Analytics,easyprivacy | probe:http GET /=200/467009B (large body at / is suspicious for a vars endpoint; investigate) | 2026-11-17
