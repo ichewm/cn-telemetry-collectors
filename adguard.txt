@@ -2,6 +2,7 @@
 # source: https://github.com/ichewm/cn-telemetry-collectors
 # license: MIT — data and code
 # generated: do not edit; compiled from telemetry.domains
+||aeventlog.beacon.qq.com^
 ||alog.umeng.com^
 ||analytics.yahoo.com^
 ||api.amplitude.com^
@@ -9,8 +10,10 @@
 ||api.segment.io^
 ||applog.snssdk.com^
 ||bam.nr-data.net^
+||beacons.gvt2.com^
 ||insights-collector.newrelic.com^
 ||log.snssdk.com^
+||oth.eve.mdt.qq.com^
 ||pixel.barion.com^
 ||pixel.parsely.com^
 ||pixel.thoughtmetric.io^

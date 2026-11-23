@@ -2,6 +2,7 @@
 # source: https://github.com/ichewm/cn-telemetry-collectors
 # license: MIT — data and code
 # generated: do not edit; compiled from telemetry.domains
+0.0.0.0 aeventlog.beacon.qq.com
 0.0.0.0 alog.umeng.com
 0.0.0.0 analytics.yahoo.com
 0.0.0.0 api.amplitude.com
@@ -9,8 +10,10 @@
 0.0.0.0 api.segment.io
 0.0.0.0 applog.snssdk.com
 0.0.0.0 bam.nr-data.net
+0.0.0.0 beacons.gvt2.com
 0.0.0.0 insights-collector.newrelic.com
 0.0.0.0 log.snssdk.com
+0.0.0.0 oth.eve.mdt.qq.com
 0.0.0.0 pixel.barion.com
 0.0.0.0 pixel.parsely.com
 0.0.0.0 pixel.thoughtmetric.io
