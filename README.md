@@ -32,7 +32,7 @@ https://github.com/ichewm/cn-telemetry-collectors/releases/download/list/telemet
 # raw on the dist branch (rebuilt weekly)
 https://raw.githubusercontent.com/ichewm/cn-telemetry-collectors/dist/telemetry.hosts
 
-# Gitee mirror (CN-friendly; new-repo raw access may lag on first days)
+# Gitee mirror (CN-friendly)
 https://gitee.com/hewmbj/cn-telemetry-collectors/raw/dist/telemetry.hosts
 ```
 
