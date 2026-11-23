@@ -22,8 +22,3 @@ in.hotjar.com | shavar:Analytics,easyprivacy | DEMOTED: https GET /=200/467KB (m
 
 # --- demoted from STABLE 2026-11-18: reversal caught by weekly verify (US vantage) ---
 ping.chartbeat.net | shavar:Analytics,easyprivacy | DEMOTED: http GET /=200/16103B (real page now served); /collect=404/150B — beacon path no longer collector-shaped | 2026-11-17
-
-# --- L3 behavioral-loop candidates 2026-11-18 (device qlog, esp32-c3-adblock-cn) ---
-aeventlog.beacon.qq.com | device-qlog | L3: blocked telemetry-pattern query on household device; needs probe/second source before promotion | 2026-11-18
-oth.eve.mdt.qq.com | device-qlog | L3: Tencent MDT quality-monitor telemetry; needs probe/second source | 2026-11-18
-beacons.gvt2.com | device-qlog | L3: Google telemetry beacons (gvt2 = Google validation/telemetry); needs probe/second source | 2026-11-18

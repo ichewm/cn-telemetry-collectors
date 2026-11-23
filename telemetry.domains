@@ -33,3 +33,9 @@ analytics.yahoo.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17
 pixel.barion.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17
 pixel.thoughtmetric.io | shavar:Analytics,easyprivacy | 2src | 2026-11-17
 stat-track.com | shavar:Analytics,easyprivacy | 2src | 2026-11-17
+  # CN telemetry (rule B: device-qlog behavioral + SDK naming; main-blocklist already sinkholes these — promotion upgrades refusal to graveyard-204)
+aeventlog.beacon.qq.com | device-qlog:repeated,manual | L3: blocked telemetry-pattern query on household device; needs probe/second source before promotion + probe(US):unreachable(geo-gated) + repeated block-hit on household device across 2+ days | 2026-11-18
+  # CN telemetry (rule B: device-qlog behavioral + SDK naming; main-blocklist already sinkholes these — promotion upgrades refusal to graveyard-204)
+oth.eve.mdt.qq.com | device-qlog:repeated,manual | L3: Tencent MDT quality-monitor telemetry; needs probe/second source + probe(US):unreachable(geo-gated) + repeated block-hit on household device across 2+ days | 2026-11-18
+  # CN telemetry (rule B: device-qlog behavioral + SDK naming; main-blocklist already sinkholes these — promotion upgrades refusal to graveyard-204)
+beacons.gvt2.com | device-qlog:repeated,manual | L3: Google telemetry beacons (gvt2 = Google validation/telemetry); needs probe/second source + probe(US):404-tiny collector + repeated block-hit on household device across 2+ days | 2026-11-18
